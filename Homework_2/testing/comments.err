@@ -1,0 +1,7 @@
+Parse.parseandprint "../testcases/comments-and-strings/comments.tig" "comments.tig.out";
+../testcases/comments-and-strings/comments.tig:17.52:string ended with newline:  );
+../testcases/comments-and-strings/comments.tig:18.39:illegal backslash escape:  \y
+../testcases/comments-and-strings/comments.tig:19.24:string ended with newline:  i am trying to write a multi line string..
+../testcases/comments-and-strings/comments.tig:20.52:string ended with newline:  ))
+val it = () : unit
+- 

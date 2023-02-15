@@ -1,0 +1,11 @@
+1. Why var start at 2? What is the `yypos`
+
+2. How to understand the func  eof()
+
+3. What is the command in the lexer
+
+4. how to define the state, NFA or DFA?
+
+5. What is a lexer, is it a token?
+
+6. What is user declaration and what is the difference of ML-Lex definition

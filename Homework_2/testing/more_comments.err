@@ -1,0 +1,4 @@
+Parse.parseandprint "../testcases/comments-and-strings/more_comments.tig" "more_comments.tig.out";
+../testcases/comments-and-strings/more_comments.tig:10.1:unterminated comment
+val it = () : unit
+- 
