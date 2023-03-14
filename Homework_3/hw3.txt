@@ -1,0 +1,8 @@
+1. Shift-Reduce conflict.
+There is no shift-reduced conflict in my grammar, which can be demonstrated in the tiger.grm.desc file. So basically, there is no ambiguity when parsing the languages. 
+
+2. Why conflict in page 82 is problematic. How to avoid it. 
+ 
+
+3. How I avoid conflict in my grammars. 
+I avoid most of my conflict based on the precedence and associativities declarations in the grammar. 

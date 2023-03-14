@@ -1,0 +1,179 @@
+structure A = Absyn
+
+%%
+%term
+    EOF 
+  | ID of string
+  | INT of int | STRING of string 
+  | COMMA | COLON | SEMICOLON | LPAREN | RPAREN | LBRACK | RBRACK 
+  | LBRACE | RBRACE | DOT 
+  | PLUS | MINUS | TIMES | DIVIDE | EQ | NEQ | LT | LE | GT | GE
+  | AND | OR | ASSIGN
+  | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF 
+  | BREAK | NIL
+  | FUNCTION | VAR | TYPE 
+
+%nonterm  exp | program | lvalue | assign_exp | tydeclist | tydecTail | 
+arith_exp | comp_exp | bool_exp | 
+decs | dec | tydec | ty | tyfield | tyfields | tyfields_nonempty | vardec | fundec | expseq |
+call_exp | para_exp | record_exp | record_decs | record_dec | array_exp | seq_exp | exp_list | unit_exp
+
+%pos int
+%verbose
+%start program
+%eop EOF
+%noshift EOF
+
+%name Tiger
+
+%keyword WHILE FOR TO BREAK LET IN END FUNCTION VAR TYPE ARRAY IF THEN ELSE DO OF NIL
+
+%prefer THEN ELSE LPAREN
+
+%left OR
+%left AND 
+%nonassoc EQ NEQ LT LE GT GE
+%left PLUS MINUS
+%left TIMES DIVIDE
+
+
+%right DO
+%right ELSE THEN
+%right ASSIGN
+%right OF 
+
+%right LBRACK LBRACE LPAREN
+%left RBRACK RBRACE RPAREN
+%right COMMA SEMICOLON
+
+%right TYPE
+
+%value ID ("bogus")
+%value INT (1)
+%value STRING ("")
+
+%%
+
+program: exp  ()
+
+exp : 
+    INT     (print("INT " ^ Int.toString(INT) ^ "\n"))
+  | STRING  (print("STRING " ^ STRING ^ "\n"))
+  | NIL     (print("NIL\n"))
+  | BREAK  (print("BREAK\n"))
+  | WHILE exp DO exp (print("WHILE\n"))
+  | LET decs IN expseq END   (print("LET\n"))
+  | IF exp THEN exp ELSE exp (print("IF ELSE\n"))
+  | IF exp THEN exp (print("IF THEN\n"))
+  | FOR ID ASSIGN exp TO exp DO exp (print("FOR\n"))
+  | lvalue  (print("LVALUE\n"))
+  | assign_exp (print("ASSIGN_EXP\n"))
+  | arith_exp  (print("ARITH_EXP\n"))
+  | comp_exp   (print("COMP_EXP\n"))
+  | bool_exp   (print("BOOL_EXP\n"))
+  | call_exp   (print("CALL_EXP\n") )
+  | record_exp (print("RECORD_EXP\n"))
+  | array_exp  (print("ARRAY_EXP\n"))
+  | seq_exp    (print("SEQ_EXP\n"))
+  | unit_exp   (print("UNIT_EXP\n"))
+
+decs : 
+    decs dec (print("DECS DEC\n"))
+  |  (print("DEC\n"))
+
+dec:
+  tydeclist %prec TYPE (print("TYDECLIST\n"))
+| vardec (print("VARDEC\n"))
+| fundec (print("FUNDEC\n"))
+
+tydeclist:
+  tydec (print("TYDEC\n"))
+| tydeclist tydec (print("TYDECLIST TYDEC\n"))
+
+tydec:
+  TYPE ID EQ ty (print("TYPE ID EQ ty\n"))
+
+ty
+  : ID                        (print("tyID " ^ ID ^ "\n"))
+  | LBRACE tyfields RBRACE    (print("tyLBRACE tyfields RBRACE\n"))
+  | ARRAY OF ID               (print("tyARRAY OF ID " ^ ID ^ "\n"))
+
+tyfield: ID COLON ID          (print("tyfieldID COLON ID " ^ ID ^ "\n"))
+
+tyfields
+  :                                    ()
+  | tyfields_nonempty                  ()
+
+tyfields_nonempty
+  : tyfield                            ()
+  | tyfields COMMA tyfield             ()
+
+vardec
+  : VAR ID ASSIGN exp                  (print("VAR ID ASSIGN exp\n"))
+  | VAR ID COLON ID ASSIGN exp         (print("VAR ID COLON ID ASSIGN exp\n"))
+
+fundec
+  : FUNCTION ID LPAREN tyfields RPAREN EQ exp       (print("FUNCTION ID LPAREN tyfields RPAREN EQ exp\n"))
+  | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp  (print("FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp\n"))
+
+expseq
+  : exp                                ()
+  | expseq SEMICOLON exp               ()
+
+lvalue :
+    ID (print("ID" ^ ID ^ "\n"))
+  | lvalue LBRACK exp RBRACK (print("lvalue LBRACK exp RBRACK \n"))
+  | lvalue DOT ID (print("lvalue DOT ID " ^ ID ^ "\n"))
+
+assign_exp : 
+    lvalue ASSIGN exp (print("ASSIGN\n"))
+
+arith_exp : 
+    exp PLUS exp   (print("PLUS\n"))
+  | exp MINUS exp  (print("MINUS\n"))
+  | exp TIMES exp  (print("TIMES\n"))
+  | exp DIVIDE exp (print("DIVIDE\n"))
+  | MINUS exp     %prec TIMES (print("UUMINUS\n"))
+
+
+comp_exp : 
+    exp EQ exp   ()
+  | exp NEQ exp  ()
+  | exp LT exp   ()
+  | exp LE exp   ()
+  | exp GT exp   ()
+  | exp GE exp   ()
+
+bool_exp : 
+    exp AND exp ()
+  | exp OR exp  ()
+
+call_exp : 
+    ID LPAREN para_exp RPAREN ()
+
+para_exp :
+    exp ()
+  | para_exp COMMA exp ()
+
+record_exp : 
+    ID LBRACE record_decs RBRACE (print("ID LBRACE record_decs RBRACE\n"))
+
+record_decs :
+    record_dec ()
+  | record_decs COMMA record_dec ()
+
+record_dec :
+    ID EQ exp ()
+
+array_exp :
+    lvalue LBRACK exp RBRACK OF exp ()
+
+seq_exp :
+    LPAREN exp_list RPAREN ()
+
+exp_list :
+    exp ()
+  | exp_list SEMICOLON exp ()
+
+unit_exp :
+    LPAREN RPAREN ()

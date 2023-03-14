@@ -1,0 +1,43 @@
+CODE_DIR='../src'
+TESTCASE_DIR='./testcases/syntax-and-sem-analysis/'
+CURR_DIR=`pwd`
+# 
+# Clean up the code directory
+# NOTE: Comment the next line out if you are not using your own scanner
+# rm -f $CODE_DIR/tiger.lex.sml
+rm -f $CODE_DIR/tiger.grm.sml
+#
+# Update the parse.sml file to have the right directory names
+# sed -i "/val dir_inname/c val dir_inname = \"$TESTCASE_DIR/\"" parse.sml
+# sed -i "/val dir_outname/c val dir_outname = \"$CURR_DIR/outputs/\"" parse.sml
+#
+# Update the sml_input file to reflect the correct directory for the sml source
+# sed -i "/CM.make /c CM.make \"$CODE_DIR/sources.cm\";" sml_input
+#
+# Save original parse.sml and copy the desired one for tests there
+mv $CODE_DIR/parse.sml $CODE_DIR/parse.sml.bak
+cp parse.sml $CODE_DIR/parse.sml
+# 
+# Create a list of files to test
+ls $TESTCASE_DIR > files.list
+
+#
+# Clean up my outputs directory and run my parser, saving the abstract
+# syntax to the outputs directory and the error msgs to a file
+# called my_output_script
+rm outputs/*
+sml < sml_input > my_output_script
+#
+# Compare my abstract syntax outputs to the ones provided
+echo "Diffing the directories..."
+diff correct_outputs outputs
+echo "Done."
+#
+# Compare the syntax errors to a "baseline." Use this only to check
+# that your parser is identifying the location of the error correctly;
+# the error recovery is a matter of taste and you should only see if you
+# like the way your parser is recovering from a syntax error.
+# sed -i 's,\/..\/..\/testcases\/syntax-and-sem-analysis,'$TESTCASE_DIR', g' baseline_output_script
+# diff baseline_output_script my_output_script
+# Restore the original parse.sml file
+mv $CODE_DIR/parse.sml.bak $CODE_DIR/parse.sml
